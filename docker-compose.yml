@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.13.0
+    container_name: elasticsearch_recommend
+    environment:
+      - discovery.type=single-node
+      # Tắt security (mật khẩu/HTTPS) để dễ dàng dev ở môi trường local
+      - xpack.security.enabled=false
+      # Giới hạn RAM cho Elasticsearch để tránh nặng máy
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    ports:
+      - "9200:9200"
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+    networks:
+      - recommend_net
+
+  api:
+    build: .
+    container_name: recommend_api
+    ports:
+      - "5000:5000"
+    environment:
+      # Thay đổi host để gọi qua tên service của Docker
+      - ELASTICSEARCH_HOST=http://elasticsearch:9200
+    env_file:
+      - .env
+    depends_on:
+      - elasticsearch
+    networks:
+      - recommend_net
+
+volumes:
+  esdata:
+
+networks:
+  recommend_net:
+    driver: bridge

@@ -1,0 +1,7 @@
+pandas
+elasticsearch==8.13.0
+sentence-transformers
+google-generativeai
+python-dotenv
+Flask
+Flask-Cors

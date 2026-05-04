@@ -1,0 +1,138 @@
+{
+	"info": {
+		"_postman_id": "c138f6d6-f131-4122-bd53-066cc9dfc821",
+		"name": "DATN V2 Recommend API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. Keyword Search (BM25)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5000/api/search/keyword?q=thịt heo&top_k=5",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"search",
+						"keyword"
+					],
+					"query": [
+						{
+							"key": "q",
+							"value": "thịt heo",
+							"description": "Từ khoá tìm kiếm"
+						},
+						{
+							"key": "top_k",
+							"value": "5",
+							"description": "Số lượng kết quả muốn trả về"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "2. Vector Search (k-NN)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5000/api/search/vector?q=đồ ăn vặt&top_k=5",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"search",
+						"vector"
+					],
+					"query": [
+						{
+							"key": "q",
+							"value": "đồ ăn vặt"
+						},
+						{
+							"key": "top_k",
+							"value": "5"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "3. Hybrid Search",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5000/api/search/hybrid?q=rau xào tỏi&top_k=5",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"search",
+						"hybrid"
+					],
+					"query": [
+						{
+							"key": "q",
+							"value": "rau xào tỏi"
+						},
+						{
+							"key": "top_k",
+							"value": "5"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "4. Chatbot API",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"message\": \"tôi muốn mua thịt bò và rau về làm lẩu cuối tuần\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/chat",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"chat"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
