@@ -1,7 +1,10 @@
 ### create .env file in root folder
+
+Copy file .env.example thành file .env, rồi thêm các biến môi trường vào file .env
+
 ```sh
 # Environment Variables
-# ask chatGPT how to get gemini api key 
+# ask chatGPT how to get gemini api key
 GEMINI_API_KEY=""
 ELASTICSEARCH_HOST="http://localhost:9200"
 ELASTICSEARCH_USER="admin"
@@ -9,6 +12,7 @@ ELASTICSEARCH_PASSWORD="admin"
 ```
 
 ### cách chạy service
+
 ```sh
 # set up all environment 1 times
 pip install -r requirements.txt
