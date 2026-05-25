@@ -1,0 +1,1 @@
+*/5 * * * * cd /app && python data_cronjob.py && python ingest_data.py >> /var/log/search-chat-cron.log 2>&1

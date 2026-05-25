@@ -1,5 +1,9 @@
 pandas
+psycopg2-binary
 elasticsearch==8.13.0
+# CPU-only torch avoids downloading the 530MB GPU wheel
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch
 sentence-transformers
 google-generativeai
 python-dotenv

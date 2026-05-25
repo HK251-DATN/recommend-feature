@@ -1,13 +1,14 @@
+import os
 import psycopg2
 import pandas as pd
 
 # ====== DB CONFIG ======
 DB_CONFIG = {
-    "host": "localhost",
-    "port": 5432,
-    "dbname": "ecommercev3",
-    "user": "postgres",
-    "password": "12345678"
+    "host": os.getenv("DB_HOST", "postgres"),
+    "port": int(os.getenv("DB_PORT", 5432)),
+    "dbname": os.getenv("SEARCH_CHAT_DB_NAME", "ecommerce_db"),
+    "user": os.getenv("DB_USERNAME", "khoidev"),
+    "password": os.getenv("DB_PASSWORD", "khoicktv"),
 }
 
 # ====== SQL QUERY ======

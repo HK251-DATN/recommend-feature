@@ -91,7 +91,7 @@ def api_chat():
         results = search_hybrid(keywords, top_k=5)
         
         if not results:
-             return jsonify({
+            return jsonify({
                 "status": "success",
                 "chat_response": "Xin lỗi, hiện tại tôi không tìm thấy sản phẩm nào phù hợp với yêu cầu của bạn.",
                 "recommended_products": [],

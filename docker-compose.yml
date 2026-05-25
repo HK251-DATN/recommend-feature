@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   elasticsearch:
@@ -11,7 +11,7 @@ services:
       # Giới hạn RAM cho Elasticsearch để tránh nặng máy
       - ES_JAVA_OPTS=-Xms512m -Xmx512m
     ports:
-      - "9200:9200"
+      - "9250:9200"
     volumes:
       - esdata:/usr/share/elasticsearch/data
     networks:

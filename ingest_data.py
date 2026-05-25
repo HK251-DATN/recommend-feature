@@ -20,7 +20,7 @@ def get_es_client():
         return Elasticsearch(ES_HOST, basic_auth=(ES_USER, ES_PASSWORD))
     return Elasticsearch(ES_HOST)
 
-def create_index(es):
+def ensure_index(es):
     index_mapping = {
         "mappings": {
             "properties": {
@@ -40,44 +40,58 @@ def create_index(es):
             }
         }
     }
-    
-    if es.indices.exists(index=INDEX_NAME):
-        print(f"Index '{INDEX_NAME}' already exists. Deleting it to recreate...")
-        es.indices.delete(index=INDEX_NAME)
-        
-    print(f"Creating index '{INDEX_NAME}'...")
-    es.indices.create(index=INDEX_NAME, body=index_mapping)
-    print("Index created successfully.")
+
+    if not es.indices.exists(index=INDEX_NAME):
+        print(f"Creating index '{INDEX_NAME}'...")
+        es.indices.create(index=INDEX_NAME, body=index_mapping)
+        print("Index created successfully.")
+    else:
+        print(f"Index '{INDEX_NAME}' already exists, skipping creation.")
+
+def get_indexed_ids(es) -> set:
+    """Returns all document IDs currently in the index."""
+    ids = set()
+    resp = helpers.scan(es, index=INDEX_NAME, query={"query": {"match_all": {}}}, _source=False)
+    for hit in resp:
+        ids.add(hit["_id"])
+    return ids
+
+def delete_orphans(es, indexed_ids: set, current_ids: set):
+    """Deletes documents whose IDs are no longer in the product catalog."""
+    orphan_ids = indexed_ids - current_ids
+    if not orphan_ids:
+        print("No orphaned documents to delete.")
+        return
+
+    deletions = [{"_op_type": "delete", "_index": INDEX_NAME, "_id": oid} for oid in orphan_ids]
+    helpers.bulk(es, deletions)
+    print(f"Deleted {len(orphan_ids)} orphaned document(s): {orphan_ids}")
 
 def ingest_data():
     es = get_es_client()
-    
-    # Ensure Elasticsearch is connected
+
     if not es.ping():
         print("Cannot connect to Elasticsearch. Please ensure it is running.")
         return
 
-    create_index(es)
-    
+    ensure_index(es)
+
     print("Loading Sentence Transformer model...")
     model = SentenceTransformer(MODEL_NAME)
-    
+
     print("Reading product.csv...")
     df = pd.read_csv("product.csv")
-    
-    # Fill NaN values
     df = df.fillna("")
-    
+
+    current_ids = set(str(row["product_general_id"]) for _, row in df.iterrows())
+
     documents = []
     print("Generating embeddings and preparing data for Elasticsearch...")
-    
-    for index, row in df.iterrows():
-        # Combine text for vectorization
+
+    for _, row in df.iterrows():
         combined_text = f"{row['product_name']} {row['product_description']} {row['category_name']} {row['tags']}"
-        
-        # Generate embedding
         embedding = model.encode(combined_text).tolist()
-        
+
         doc = {
             "_index": INDEX_NAME,
             "_id": row["product_general_id"],
@@ -93,9 +107,15 @@ def ingest_data():
             }
         }
         documents.append(doc)
-        
-    print(f"Bulk indexing {len(documents)} products...")
+
+    print(f"Upserting {len(documents)} products...")
     helpers.bulk(es, documents)
+    print("Upsert completed.")
+
+    print("Checking for orphaned documents...")
+    indexed_ids = get_indexed_ids(es)
+    delete_orphans(es, indexed_ids, current_ids)
+
     print("Data ingestion completed successfully!")
 
 if __name__ == "__main__":

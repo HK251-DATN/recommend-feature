@@ -2,8 +2,8 @@ FROM python:3.10-slim
 
 WORKDIR /app
 
-# Cài đặt các system dependencies nếu cần thiết
-RUN apt-get update && apt-get install -y --no-install-recommends \
+# Install curl (entrypoint ES health-check) and cron (periodic data sync)
+RUN apt-get update && apt-get install -y --no-install-recommends curl cron \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
@@ -16,7 +16,13 @@ RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTr
 
 COPY . .
 
+COPY entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+
+# Install the crontab (runs data sync every 5 minutes)
+COPY crontab /etc/cron.d/search-chat
+RUN chmod 0644 /etc/cron.d/search-chat && crontab /etc/cron.d/search-chat
+
 EXPOSE 5000
 
-# Khởi chạy Flask app
-CMD ["python", "app.py"]
+ENTRYPOINT ["/app/entrypoint.sh"]
